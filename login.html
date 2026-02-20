@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<title>DibiTeas – Login / Signup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle at bottom,#03131d,#000814);
+    color:white;
+    overflow:hidden;
+}
+.glow{
+    position:absolute;
+    width:400px;
+    height:400px;
+    background:radial-gradient(circle, rgba(0,255,255,0.3), transparent);
+    filter:blur(80px);
+    top:-100px;
+    left:-100px;
+    animation:pulse 3s infinite alternate;
+}
+@keyframes pulse{from{transform:scale(1);} to{transform:scale(1.3);}}
+.container{
+    text-align:center;
+    padding:50px;
+    border-radius:25px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(20px);
+    border:2px solid rgba(0,255,255,0.2);
+    box-shadow:0 0 40px rgba(0,255,255,0.2);
+    width:400px;
+}
+h1{font-size:36px;margin-bottom:20px;color:#00eaff;}
+input{width:100%;padding:14px;margin:10px 0;border-radius:10px;border:none;outline:none;font-size:16px;background:rgba(255,255,255,0.1);color:white;}
+input::placeholder{color:#bdeaff;}
+.btn{width:100%;padding:14px 30px;margin:10px 0;border:none;border-radius:10px;font-size:18px;font-weight:600;background:#00eaff;color:black;cursor:pointer;transition:0.3s;}
+.btn:hover{background:#009ac4;}
+.switch{margin-top:15px;font-size:14px;color:#bdeaff;}
+.switch a{color:#00eaff;text-decoration:none;cursor:pointer;font-weight:600;}
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<div class="container" id="loginContainer">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button class="btn" onclick="login()">Login</button>
+    <div class="switch">
+        अकाउंट नाही? <a onclick="toggleForm()">Sign Up</a>
+    </div>
+</div>
+
+<div class="container" id="signupContainer" style="display:none;">
+    <h1>Sign Up</h1>
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <button class="btn" onclick="signup()">Sign Up</button>
+    <div class="switch">
+        आधीपासून अकाउंट आहे? <a onclick="toggleForm()">Login</a>
+    </div>
+</div>
+
+<script>
+function toggleForm(){
+    const loginForm = document.getElementById("loginContainer");
+    const signupForm = document.getElementById("signupContainer");
+    if(loginForm.style.display==="none"){
+        loginForm.style.display="block";
+        signupForm.style.display="none";
+    } else {
+        loginForm.style.display="none";
+        signupForm.style.display="block";
+    }
+}
+
+function signup(){
+    const name=document.getElementById("name").value.trim();
+    const email=document.getElementById("signupEmail").value.trim();
+    const password=document.getElementById("signupPassword").value.trim();
+    if(!name||!email||!password){alert("सर्व fields भरा!"); return;}
+    fetch("/api/signup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,email,password})})
+    .then(res=>res.json())
+    .then(data=>{alert(data.message); if(data.status==="success") toggleForm();});
+}
+
+function login(){
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value.trim();
+    if(!email||!password){alert("सर्व fields भरा!"); return;}
+    fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})})
+    .then(res=>res.json())
+    .then(data=>{alert(data.message); if(data.status==="success") window.location.href="/health";});
+}
+</script>
+
+</body>
+</html>

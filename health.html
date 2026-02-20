@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<title>DibiTeas – Health Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:radial-gradient(circle at bottom,#03131d,#000814);
+    color:white;
+    padding-top:50px;
+}
+.container{
+    text-align:center;
+    padding:50px;
+    border-radius:25px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(20px);
+    border:2px solid rgba(0,255,255,0.2);
+    box-shadow:0 0 40px rgba(0,255,255,0.2);
+    width:800px;
+}
+h1{font-size:42px;color:#00eaff;margin-bottom:10px;}
+p{font-size:16px;color:#bdeaff;margin-bottom:20px;}
+input{
+    width:120px;
+    padding:10px;
+    margin:5px;
+    border-radius:10px;
+    border:none;
+    outline:none;
+    font-size:16px;
+}
+.status{
+    padding:20px;
+    margin:10px 0;
+    border-radius:15px;
+    background:rgba(0,255,255,0.1);
+    border:1px solid rgba(0,255,255,0.3);
+    box-shadow:0 0 20px rgba(0,255,255,0.1);
+    text-align:left;
+}
+.btn{
+    padding:14px 30px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    font-size:18px;
+    cursor:pointer;
+    font-weight:600;
+    background:#00eaff;
+    color:black;
+}
+.btn:hover{background:#009ac4;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Health Dashboard</h1>
+    <p>AI Powered Diabetes Prediction & Health Analyzer</p>
+
+    <!-- 8-column Diabetes Prediction Form -->
+    <div>
+        <input type="number" id="Pregnancies" placeholder="Pregnancies">
+        <input type="number" id="Glucose" placeholder="Glucose">
+        <input type="number" id="BloodPressure" placeholder="BloodPressure">
+        <input type="number" id="SkinThickness" placeholder="SkinThickness">
+        <input type="number" id="Insulin" placeholder="Insulin">
+        <input type="number" step="0.1" id="BMI" placeholder="BMI">
+        <input type="number" step="0.01" id="DiabetesPedigreeFunction" placeholder="DPF">
+        <input type="number" id="Age" placeholder="Age">
+        <br>
+        <button class="btn" onclick="predict()">Predict Diabetes</button>
+    </div>
+
+    <div class="status" id="result">
+        Enter all fields and click Predict to see risk.
+    </div>
+
+    <!-- Health Analyzer (age, bmi, glucose) -->
+    <div style="margin-top:20px;">
+        <input type="number" id="age" placeholder="Age for Health Analysis">
+        <input type="number" id="bmi" placeholder="BMI for Health Analysis">
+        <input type="number" id="glucose" placeholder="Glucose for Health Analysis">
+        <button class="btn" onclick="analyze()">Analyze Health</button>
+    </div>
+
+    <button class="btn" onclick="logout()">Logout</button>
+</div>
+
+<script>
+// Logout
+function logout(){ window.location.href="/login"; }
+
+// ---------------- Predict Diabetes ----------------
+function predict(){
+    const ML_COLUMNS = ["Pregnancies","Glucose","BloodPressure","SkinThickness","Insulin","BMI","DiabetesPedigreeFunction","Age"];
+    let data = {};
+    for(let col of ML_COLUMNS){
+        const val = document.getElementById(col).value;
+        if(val===""){ alert("सर्व fields भरा!"); return; }
+        data[col] = val;
+    }
+
+    fetch("/predict",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(data)
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        const div = document.getElementById("result");
+        const outcome = data.prediction===1?"Diabetic":"Non-Diabetic";
+        div.innerHTML = `<strong>Diabetes Prediction:</strong> ${outcome} <br>
+                         <strong>Probability:</strong> ${data.probability}`;
+        div.style.borderColor = "#00eaff";
+        div.style.backgroundColor = "#00eaff33";
+    });
+}
+
+// ---------------- Health Analyzer ----------------
+function analyze(){
+    const age = document.getElementById("age").value;
+    const bmi = document.getElementById("bmi").value;
+    const glucose = document.getElementById("glucose").value;
+
+    if(!age || !bmi || !glucose){ alert("सर्व fields भरा!"); return; }
+
+    fetch("/analyze",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({age,bmi,glucose})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        const div = document.getElementById("result");
+        div.innerHTML += `<br><strong>Health Risk:</strong> ${data.prediction} <br>
+                          <strong>Details:</strong> ${data.details} <br>
+                          <strong>Tips:</strong> ${data.tips}`;
+        div.style.borderColor = data.color;
+        div.style.backgroundColor = data.color+"33";
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+    "users": {
+        "ruchita@gmail.com": {
+            "name": "ruchita gosavi",
+            "password": "admin123"
+        },
+        "ruchita12@gmail.com": {
+            "name": "ruchita pramod gosavi",
+            "password": "12345"
+        },
+        "ru35@gmail.com": {
+            "name": "ruchi",
+            "password": "123456"
+        }
+    }
+}
